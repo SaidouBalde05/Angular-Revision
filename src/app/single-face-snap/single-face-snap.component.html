@@ -1,5 +1,5 @@
-<!-- <div class="face-snap-card"> -->
-<div class="face-snap-card" [ngClass]="{ snapped: userHasSnapped }">  
+<div  *ngIf="faceSnap$ | async as faceSnap"
+ class="face-snap-card" [ngClass]="{ snapped: userHasSnapped }">  
     <h2>{{ faceSnap.title | titlecase }}</h2>
     <a routerLink="/faceSnaps">BACK</a>
     @if (faceSnap.location) {
@@ -11,7 +11,7 @@
     <p>{{ faceSnap.description }}</p>
     <p>FaceSnap créée le {{ faceSnap.createdAt | date : 'd MMMM YYYY, à HH:MM' }}</p>
     <p>
-        <button (click)="onSnap()"> <i class="fa fa-heart-o" aria-hidden="true"></i> {{snapButtonText}} </button>
+        <button (click)="onSnap(faceSnap.id)"> <i class="fa fa-heart-o" aria-hidden="true"></i> {{snapButtonText}} </button>
         <span [ngStyle]="{color: 'rgb(0,' + faceSnap.snaps + ',0)'}">
             {{ faceSnap.snaps }}</span>
     </p>

@@ -19,26 +19,26 @@ import { Router } from '@angular/router';
   styleUrl: './face-snap.component.scss'
 })
 export class FaceSnapComponent implements OnInit{
+  @Input() faceSnap!: faceSnap;
+  snapButtonText!: string;
+  userHasSnapped!: boolean;
 
   constructor(
     private faceSnapService: FaceSnapsService, 
     private router: Router
   ){}
 
-  @Input() faceSnap!: faceSnap;
-  snapButtonText!: string;
-  userHasSnapped!: boolean;
   ngOnInit(): void {
     this.snapButtonText = 'Oh Snap'
     this.userHasSnapped = false
   }
- onSnap():void{
-  if(this.userHasSnapped){
-    this.unSnap()
-  } else {
-    this.snap()
+  onSnap():void{
+    if(this.userHasSnapped){
+      this.unSnap()
+    } else {
+      this.snap()
+    }
   }
- }
 
  unSnap() {
   this.faceSnapService.snapFaceSnapById(this.faceSnap.id, 'unsnap');

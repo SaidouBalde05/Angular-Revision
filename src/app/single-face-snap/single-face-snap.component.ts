@@ -1,8 +1,9 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { faceSnap } from '../models/face-snap';
-import { CurrencyPipe, DatePipe, DecimalPipe, LowerCasePipe, NgClass, NgStyle, PercentPipe, TitleCasePipe, UpperCasePipe } from '@angular/common';
+import { CommonModule, CurrencyPipe, DatePipe, DecimalPipe, LowerCasePipe, NgClass, NgStyle, PercentPipe, TitleCasePipe, UpperCasePipe } from '@angular/common';
 import { FaceSnapsService } from '../services/face-snaps.service';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { Observable, tap } from 'rxjs';
 
 @Component({
   selector: 'app-single-face-snap',
@@ -12,13 +13,15 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
     NgClass,
     TitleCasePipe,
     DatePipe,
-    RouterLink
+    RouterLink,
+    CommonModule
   ],
   templateUrl: './single-face-snap.component.html',
   styleUrl: './single-face-snap.component.scss'
 })
 export class SingleFaceSnapComponent implements OnInit{
   faceSnap!: faceSnap
+  faceSnap$!: Observable<faceSnap>
   snapButtonText!: string;
   userHasSnapped!: boolean;
 
@@ -28,40 +31,35 @@ export class SingleFaceSnapComponent implements OnInit{
   ){}
 
   ngOnInit(): void {
-    this.snapButtonText = 'Oh Snap'
+    this.snapButtonText = 'Oh Snap!'
     this.userHasSnapped = false
     const faceSnapId = this.route.snapshot.params['id']
+    console.log('faceSnapId erreur ' + faceSnapId)
     this.prepareInterface();
-    this.getFaceSnap()
+    this.faceSnap$ = this.faceSnapService.getFaceSnapById(faceSnapId)
+    
   }
 
   private prepareInterface() {
     this.snapButtonText = 'Oh Snap!';
     this.userHasSnapped = false;
   }
-
-  private getFaceSnap() {
-    const faceSnapId = this.route.snapshot.params['id'];
-    this.faceSnap = this.faceSnapService.getFaceSnapById(faceSnapId);
-  }
-
- onSnap():void{
-  if(this.userHasSnapped){
-    this.unSnap()
+  
+onSnap(faceSnapId: number) {
+  if (this.snapButtonText === 'Oh Snap!') {
+    this.faceSnap$ = this.faceSnapService.snapFaceSnapById(faceSnapId, 'snap').pipe(
+      tap(() => {
+        this.snapButtonText = 'Oops, unSnap!';
+        this.userHasSnapped = true  
+      })
+    )
   } else {
-    this.snap()
+    this.faceSnap$ = this.faceSnapService.snapFaceSnapById(faceSnapId, 'unsnap').pipe(
+      tap(() => {
+        this.snapButtonText = 'Oh Snap!';
+        this.userHasSnapped = false
+      })
+    )
   }
- }
-
- unSnap() {
-  this.faceSnapService.snapFaceSnapById(this.faceSnap.id, 'unsnap');
-  this.snapButtonText = 'Oh Snap!';
-  this.userHasSnapped = false;
-  }
-
- snap(){
-  this.faceSnapService.snapFaceSnapById(this.faceSnap.id, 'snap')
-  this.snapButtonText = 'oops unSnap!'
-  this.userHasSnapped = true
- }
+}
 }
